@@ -1,0 +1,26 @@
+name: Security Audit
+on:
+  workflow_dispatch:
+  schedule:
+    # Run every week on Monday.
+    - cron: '0 0 * * 1'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v2
+
+      - name: Install cargo-audit
+        uses: actions-rs/install@master
+        with:
+          crate: cargo-audit
+      - name: Audit dependencies
+        uses: actions-rs/audit-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
