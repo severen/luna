@@ -67,7 +67,6 @@ impl<'a> Display for Token<'a> {
 
 /// The lexical category of a [`Token`].
 #[derive(Logos, Debug, Copy, Clone, PartialEq, Eq)]
-#[repr(u8)]
 pub enum TokenKind {
   /// A left bracket `(` character.
   #[token("(")]
