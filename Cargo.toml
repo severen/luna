@@ -7,9 +7,9 @@ license = "GPL-3.0"
 edition = "2018"
 
 [dependencies]
-anyhow = "1.0.37"
+anyhow = "1.0.38"
 thiserror = "1.0.23"
 structopt = "0.3.21"
 rustyline = "7.1.0"
 xdg = "2.2.0"
-logos = "0.11.4"
+logos = "0.12.0"
