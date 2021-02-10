@@ -18,6 +18,7 @@ use std::fs;
 use anyhow::Result;
 use structopt::StructOpt;
 use rustyline::{Editor, error::ReadlineError};
+use directories_next::ProjectDirs;
 
 mod lexer;
 mod parser;
@@ -45,8 +46,15 @@ fn main() -> Result<()> {
 }
 
 fn start_repl() -> Result<()> {
-  let xdg_dirs = xdg::BaseDirectories::with_prefix("luna")?;
-  let history_path = xdg_dirs.place_data_file("history.txt")?;
+  // The first and second parameters are respectively a reverse domain name and
+  // organisation name, which are currently not used.
+  let dirs = match ProjectDirs::from("", "", "luna") {
+    Some(dirs) => dirs,
+    // TODO: Handle a None value more gracefully by either throwing an error or
+    // disabling history.
+    None => panic!("Could not find a valid $HOME path."),
+  };
+  let history_path = dirs.data_dir().join("history.txt");
 
   let mut rl = Editor::<()>::new();
   if rl.load_history(&history_path).is_err() {
