@@ -45,8 +45,13 @@ mod tests {
 
   #[test]
   fn ignore_shebang() {
-    const PROGRAM: &str = "#!/usr/bin/env foo\n(define x 10)\n";
+    const PROGRAM1: &str = "#!/usr/bin/env luna\n(define x 10)\n";
+    assert_eq!(strip_shebang(PROGRAM1), "(define x 10)\n");
 
-    assert_eq!(strip_shebang(PROGRAM), "(define x 10)\n");
+    const PROGRAM2: &str = "#!/usr/bin/env luna";
+    assert!(strip_shebang(PROGRAM2).is_empty());
+
+    const PROGRAM3: &str = "#!/usr/bin/env luna\n";
+    assert!(strip_shebang(PROGRAM3).is_empty());
   }
 }
