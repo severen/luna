@@ -13,6 +13,11 @@
 // You should have received a copy of the GNU General Public License
 // along with Luna.  If not, see <https://www.gnu.org/licenses/>.
 
+//! Luna is an exercise in writing a Scheme-derived programming language for
+//! learning about programming language theory, design, and implementation.
+//!
+//! For more information, see the README file in the repository root.
+
 use std::fs;
 
 use anyhow::Result;
@@ -25,6 +30,7 @@ mod parser;
 
 use crate::parser::parse;
 
+/// Parsed command line arguments.
 #[derive(Debug, StructOpt)]
 #[structopt(name = "luna", about = "A Lispy programming language.")]
 struct Options {
@@ -39,13 +45,13 @@ fn main() -> Result<()> {
     let input = fs::read_to_string(path)?;
     parse(&input);
   } else {
-    start_repl()?;
+    repl()?;
   }
 
   Ok(())
 }
 
-fn start_repl() -> Result<()> {
+fn repl() -> Result<()> {
   // The first and second parameters are respectively a reverse domain name and
   // organisation name, which are currently not used.
   let dirs = match ProjectDirs::from("", "", "luna") {

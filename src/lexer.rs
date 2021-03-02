@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Luna.  If not, see <https://www.gnu.org/licenses/>.
 
-//! This module contains types and procedures for performing lexical analysis
-//! of a program.
+//! This module contains types and functions for performing lexical analysis of
+//! Luna source code.
 
 use std::fmt::{self, Display, Formatter};
 
@@ -23,9 +23,12 @@ use logos::Logos;
 /// A span of bytes in some source code.
 pub type Span = std::ops::Range<usize>;
 
-/// A lexical anaylser that converts source code into an iterator of
-/// [`Token`]s.
+/// The lexical analyser for Luna source code.
+///
+/// This struct is, in essence, a representation of some source code as an
+/// iterator of [`Token`]s.
 pub struct Lexer<'a> {
+  /// The wrapped [`logos`] lexer struct.
   inner: logos::Lexer<'a, TokenKind>,
 }
 
@@ -48,7 +51,7 @@ impl<'a> Iterator for Lexer<'a> {
   }
 }
 
-/// A token from some source code.
+/// A token produced by a [`Lexer`].
 #[derive(Debug, Eq, PartialEq)]
 pub struct Token<'a> {
   /// The lexical category of this token.
@@ -96,10 +99,12 @@ pub enum TokenKind {
   #[regex(r"(\+|-)?[0-9]+", priority = 2)]
   Int,
 
+  /// A whitespace character, where 'whitespace' is defined to be any character
+  /// in the Unicode lexical class `Pattern_White_Space`.
   #[regex(r"\p{Pattern_White_Space}+", logos::skip)]
-  /// Whitespace.
   Whitespace,
 
+  /// A 'token' used for indicating errors encountered during lexical analysis.
   #[error]
   Error,
 }

@@ -13,6 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Luna.  If not, see <https://www.gnu.org/licenses/>.
 
+//! This module contains types and functions for parsing Luna source code.
+
 use crate::lexer::Lexer;
 
 // TODO: Write an actual parser.

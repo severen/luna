@@ -3,13 +3,15 @@ name = "luna"
 version = "0.1.0"
 authors = ["Severen Redwood <severen@shrike.me>"]
 license = "GPL-3.0"
+readme = "README.md"
+repository = "https://github.com/severen/luna.git"
 
 edition = "2018"
 
 [dependencies]
-anyhow = "1.0.38"
-thiserror = "1.0.23"
+anyhow = "1.0.40"
+thiserror = "1.0.24"
 structopt = "0.3.21"
-rustyline = "7.1.0"
+rustyline = "8.0.0"
 directories-next = "2.0.0"
 logos = "0.12.0"
