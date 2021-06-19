@@ -19,8 +19,15 @@ use std::fmt::{self, Display, Formatter};
 
 use logos::Logos;
 
+// NOTE: A custom struct is used instead of `std::ops::Range<usize>` so that
+//       `Token` can implement Copy, which is in turn needed for peeking
+//       support in the lexer. See rust-lang/rfcs#2848 for more.
 /// A span of bytes in some source code.
-pub type Span = std::ops::Range<usize>;
+#[derive(Debug, Eq, PartialEq, Copy, Clone)]
+pub struct Span {
+  start: usize,
+  end: usize,
+}
 
 /// The lexical analyser for Luna source code.
 ///
@@ -29,12 +36,23 @@ pub type Span = std::ops::Range<usize>;
 pub struct Lexer<'a> {
   /// The wrapped [`logos`] lexer struct.
   inner: logos::Lexer<'a, TokenKind>,
+  /// The currently peeked token, if any.
+  peeked: Option<Option<Token<'a>>>,
 }
 
 impl<'a> Lexer<'a> {
   /// Create a new lexer over a given input string.
   pub fn new(input: &'a str) -> Self {
-    Self { inner: TokenKind::lexer(input) }
+    Self { inner: TokenKind::lexer(input), peeked: None }
+  }
+
+  /// Get the next token without advancing the iterator.
+  pub fn peek(&mut self) -> Option<Token> {
+      if self.peeked.is_none() {
+          self.peeked = Some(self.next());
+      }
+
+      *self.peeked.as_ref().unwrap()
   }
 }
 
@@ -42,16 +60,21 @@ impl<'a> Iterator for Lexer<'a> {
   type Item = Token<'a>;
 
   fn next(&mut self) -> Option<Self::Item> {
-    let kind = self.inner.next()?;
-    let lexeme = self.inner.slice();
-    let span = self.inner.span();
+    if let Some(peeked) = self.peeked.take() {
+      peeked
+    } else {
+      let kind = self.inner.next()?;
+      let lexeme = self.inner.slice();
+      let span = self.inner.span();
+      let (start, end) = (span.start, span.end);
 
-    Some(Self::Item { kind, lexeme, span })
+      Some(Self::Item { kind, lexeme, span: Span { start, end } })
+    }
   }
 }
 
 /// A token produced by a [`Lexer`].
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, Eq, PartialEq, Copy, Clone)]
 pub struct Token<'a> {
   /// The lexical category of this token.
   pub kind: TokenKind,
@@ -202,5 +225,27 @@ mod tests {
 
     let mut lexer = TokenKind::lexer("\t \n");
     assert_eq!(lexer.next(), None);
+  }
+
+  #[test]
+  fn peeking() {
+    let mut lexer = Lexer::new("(fib 5)");
+
+    // Can we peek and then consume?
+    assert_eq!(lexer.peek().unwrap().kind, LParen);
+    assert_eq!(lexer.next().unwrap().kind, LParen);
+
+    // Can we consume and then peek?
+    assert_eq!(lexer.next().unwrap().kind, Symbol);
+
+    // Can we peek twice and then consume?
+    assert_eq!(lexer.peek().unwrap().kind, Int);
+    assert_eq!(lexer.peek().unwrap().kind, Int);
+    assert_eq!(lexer.next().unwrap().kind, Int);
+
+    // Can we consume the last character and not break peeking?
+    assert_eq!(lexer.next().unwrap().kind, RParen);
+    assert!(lexer.peek().is_none());
+    assert!(lexer.next().is_none());
   }
 }
