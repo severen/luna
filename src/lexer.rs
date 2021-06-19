@@ -43,16 +43,19 @@ pub struct Lexer<'a> {
 impl<'a> Lexer<'a> {
   /// Create a new lexer over a given input string.
   pub fn new(input: &'a str) -> Self {
-    Self { inner: TokenKind::lexer(input), peeked: None }
+    Self {
+      inner: TokenKind::lexer(input),
+      peeked: None,
+    }
   }
 
   /// Get the next token without advancing the iterator.
   pub fn peek(&mut self) -> Option<Token> {
-      if self.peeked.is_none() {
-          self.peeked = Some(self.next());
-      }
+    if self.peeked.is_none() {
+      self.peeked = Some(self.next());
+    }
 
-      *self.peeked.as_ref().unwrap()
+    *self.peeked.as_ref().unwrap()
   }
 }
 
@@ -68,7 +71,11 @@ impl<'a> Iterator for Lexer<'a> {
       let span = self.inner.span();
       let (start, end) = (span.start, span.end);
 
-      Some(Self::Item { kind, lexeme, span: Span { start, end } })
+      Some(Self::Item {
+        kind,
+        lexeme,
+        span: Span { start, end },
+      })
     }
   }
 }
@@ -156,19 +163,19 @@ impl Display for TokenKind {
 
 /// Get the matching token for a given token from a token pair.
 pub fn get_matching(token_kind: TokenKind) -> TokenKind {
-    use TokenKind::*;
+  use TokenKind::*;
 
-    // TODO: Perhaps devise a cleaner way of handling this. This function is
-    //       principally required by `parse_list` in the parser module.
-    match token_kind {
-        LParen => RParen,
-        LBracket => RBracket,
-        LBrace => RBrace,
-        RParen => LParen,
-        RBracket => LBracket,
-        RBrace => LBrace,
-        _ => panic!("Delimiter token expected"),
-    }
+  // TODO: Perhaps devise a cleaner way of handling this. This function is
+  //       principally required by `parse_list` in the parser module.
+  match token_kind {
+    LParen => RParen,
+    LBracket => RBracket,
+    LBrace => RBrace,
+    RParen => LParen,
+    RBracket => LBracket,
+    RBrace => LBrace,
+    _ => panic!("Delimiter token expected"),
+  }
 }
 
 #[cfg(test)]

@@ -21,9 +21,9 @@
 use std::fs;
 
 use anyhow::Result;
-use structopt::StructOpt;
-use rustyline::{Editor, error::ReadlineError};
 use directories_next::ProjectDirs;
+use rustyline::{error::ReadlineError, Editor};
+use structopt::StructOpt;
 
 mod lexer;
 mod parser;
@@ -75,19 +75,19 @@ fn repl() -> Result<()> {
 
         // TODO: Properly display and format syntax trees.
         println!("{:?}", parse(&line));
-      },
+      }
       Err(ReadlineError::Interrupted) => {
         println!("CTRL-C");
         break;
-      },
+      }
       Err(ReadlineError::Eof) => {
         println!("CTRL-D");
         break;
-      },
+      }
       Err(error) => {
         println!("Error: {:?}", error);
         break;
-      },
+      }
     }
   }
 

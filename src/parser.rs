@@ -28,7 +28,7 @@
 //! EBNF for ease of discussion and reading; they do not exist in the `Ast`
 //! enum.
 
-use crate::lexer::{Lexer, TokenKind, get_matching};
+use crate::lexer::{get_matching, Lexer, TokenKind};
 
 #[derive(Debug)]
 /// An abstract syntax tree of Luna source code.
@@ -64,7 +64,7 @@ pub fn parse(input: &str) -> Ast {
 
 /// Parse the `<symbol>` terminal.
 fn parse_symbol(lexer: &mut Lexer) -> Ast {
-    Ast::Symbol(lexer.next().unwrap().lexeme.to_string())
+  Ast::Symbol(lexer.next().unwrap().lexeme.to_string())
 }
 
 /// Parse the `<int>` terminal.
@@ -101,7 +101,7 @@ fn parse_list(lexer: &mut Lexer) -> Ast {
         // TODO: Handle this more gracefully.
         assert_eq!(token.kind, get_matching(opener.kind));
         break;
-      },
+      }
       _ => unimplemented!(),
     })
   }
