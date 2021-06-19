@@ -121,7 +121,7 @@ pub enum TokenKind {
   #[regex(r"(\+|-)?[0-9]+", priority = 2)]
   Int,
   /// A boolean literal.
-  #[regex(r"\#t|\#T|\#f|\#F", priority = 2)]
+  #[regex(r"true|false")]
   Bool,
 
   /// A whitespace character, where 'whitespace' is defined to be any character
@@ -222,11 +222,8 @@ mod tests {
 
   #[test]
   fn lex_bool() {
-    check("#t", Bool);
-    check("#T", Bool);
-
-    check("#f", Bool);
-    check("#F", Bool);
+    check("true", Bool);
+    check("false", Bool);
   }
 
   #[test]

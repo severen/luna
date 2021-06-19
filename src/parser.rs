@@ -76,8 +76,8 @@ fn parse_int(lexer: &mut Lexer) -> Ast {
 fn parse_bool(lexer: &mut Lexer) -> Ast {
   let lexeme = lexer.next().unwrap().lexeme;
   let value = match lexeme {
-    "#t" | "#T" => true,
-    "#f" | "#F" => false,
+    "true" => true,
+    "false" => false,
     _ => unreachable!(),
   };
 
@@ -152,8 +152,8 @@ mod tests {
 
   #[test]
   fn parse_bool() {
-    parse("#t #T");
-    parse("#f #F");
+    parse("true");
+    parse("false");
   }
 
   #[test]
