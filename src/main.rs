@@ -73,7 +73,8 @@ fn repl() -> Result<()> {
       Ok(line) => {
         rl.add_history_entry(line.as_str());
 
-        parse(&line);
+        // TODO: Properly display and format syntax trees.
+        println!("{:?}", parse(&line));
       },
       Err(ReadlineError::Interrupted) => {
         println!("CTRL-C");

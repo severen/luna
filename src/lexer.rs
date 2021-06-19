@@ -154,6 +154,23 @@ impl Display for TokenKind {
   }
 }
 
+/// Get the matching token for a given token from a token pair.
+pub fn get_matching(token_kind: TokenKind) -> TokenKind {
+    use TokenKind::*;
+
+    // TODO: Perhaps devise a cleaner way of handling this. This function is
+    //       principally required by `parse_list` in the parser module.
+    match token_kind {
+        LParen => RParen,
+        LBracket => RBracket,
+        LBrace => RBrace,
+        RParen => LParen,
+        RBracket => LBracket,
+        RBrace => LBrace,
+        _ => panic!("Delimiter token expected"),
+    }
+}
+
 #[cfg(test)]
 mod tests {
   use super::*;
