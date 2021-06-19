@@ -13,8 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Luna.  If not, see <https://www.gnu.org/licenses/>.
 
-//! This module contains types and functions for performing lexical analysis of
-//! Luna source code.
+//! Types and functions for performing lexical analysis of Luna source code.
 
 use std::fmt::{self, Display, Formatter};
 
@@ -91,10 +90,10 @@ pub enum TokenKind {
   RBrace,
 
   // TODO: Expand this to include special characters.
-  /// An identifier.
+  /// A symbol (an interned kind of string).
   #[regex(r"\p{XID_Continue}+")]
-  Ident,
-  // We give Int a higher priority to avoid ambiguity with Ident.
+  Symbol,
+  // Give Int a higher priority to avoid ambiguity with Symbol.
   /// An integer literal.
   #[regex(r"(\+|-)?[0-9]+", priority = 2)]
   Int,
@@ -120,7 +119,7 @@ impl Display for TokenKind {
       RBracket => write!(f, "]"),
       LBrace => write!(f, "{{"),
       RBrace => write!(f, "}}"),
-      Ident => write!(f, "Ident"),
+      Symbol => write!(f, "Symbol"),
       Int => write!(f, "Int"),
       Whitespace => write!(f, "Whitespace"),
       Error => write!(f, "Error"),
@@ -160,10 +159,10 @@ mod tests {
   }
 
   #[test]
-  fn lex_ident() {
-    check("foo", Ident);
-    check("foo123", Ident);
-    check("λ", Ident);
+  fn lex_symbol() {
+    check("foo", Symbol);
+    check("foo123", Symbol);
+    check("λ", Symbol);
   }
 
   #[test]
