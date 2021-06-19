@@ -97,6 +97,9 @@ pub enum TokenKind {
   /// An integer literal.
   #[regex(r"(\+|-)?[0-9]+", priority = 2)]
   Int,
+  /// A boolean literal.
+  #[regex(r"\#t|\#T|\#f|\#F", priority = 2)]
+  Bool,
 
   /// A whitespace character, where 'whitespace' is defined to be any character
   /// in the Unicode lexical class `Pattern_White_Space`.
@@ -121,6 +124,7 @@ impl Display for TokenKind {
       RBrace => write!(f, "}}"),
       Symbol => write!(f, "Symbol"),
       Int => write!(f, "Int"),
+      Bool => write!(f, "Bool"),
       Whitespace => write!(f, "Whitespace"),
       Error => write!(f, "Error"),
     }
@@ -174,6 +178,15 @@ mod tests {
 
     check("+6", Int);
     check("-1", Int);
+  }
+
+  #[test]
+  fn lex_bool() {
+    check("#t", Bool);
+    check("#T", Bool);
+
+    check("#f", Bool);
+    check("#F", Bool);
   }
 
   #[test]
