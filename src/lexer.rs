@@ -123,6 +123,10 @@ pub enum TokenKind {
   /// A symbol (an interned kind of string).
   #[regex(r"\p{XID_Continue}+")]
   Symbol,
+  // TODO: Convert this to a raw string.
+  /// A string literal.
+  #[regex("\"([^\"\\\\]|\\\\.)*\"")]
+  String,
   // Give Int a higher priority to avoid ambiguity with Symbol.
   /// An integer literal.
   #[regex(r"(\+|-)?[0-9]+", priority = 2)]
@@ -153,6 +157,7 @@ impl Display for TokenKind {
       LBrace => write!(f, "{{"),
       RBrace => write!(f, "}}"),
       Symbol => write!(f, "Symbol"),
+      String => write!(f, "String"),
       Int => write!(f, "Int"),
       Bool => write!(f, "Bool"),
       Whitespace => write!(f, "Whitespace"),
@@ -214,6 +219,12 @@ mod tests {
     check("foo", Symbol);
     check("foo123", Symbol);
     check("λ", Symbol);
+  }
+
+  #[test]
+  fn lex_string() {
+    check("\"foo\"", String);
+    check("\"\\\"bar\\\"\"", String);
   }
 
   #[test]

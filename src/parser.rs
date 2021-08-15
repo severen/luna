@@ -35,6 +35,7 @@ use crate::lexer::{get_matching, Lexer, TokenKind};
 pub enum Ast {
   Program(Vec<Ast>),
   Symbol(String),
+  String(String),
   Int(i32),
   Bool(bool),
   List(Vec<Ast>),
@@ -52,6 +53,7 @@ pub fn parse(input: &str) -> Ast {
 
     program.push(match token.kind {
       Symbol => parse_symbol(&mut lexer),
+      String => parse_string(&mut lexer),
       Int => parse_int(&mut lexer),
       Bool => parse_bool(&mut lexer),
       LParen | LBracket | LBrace => parse_list(&mut lexer),
@@ -65,6 +67,11 @@ pub fn parse(input: &str) -> Ast {
 /// Parse the `<symbol>` terminal.
 fn parse_symbol(lexer: &mut Lexer) -> Ast {
   Ast::Symbol(lexer.next().unwrap().lexeme.to_string())
+}
+
+/// Parse the `<string>` terminal.
+fn parse_string(lexer: &mut Lexer) -> Ast {
+    Ast::String(lexer.next().unwrap().lexeme.to_string())
 }
 
 /// Parse the `<int>` terminal.
@@ -94,6 +101,7 @@ fn parse_list(lexer: &mut Lexer) -> Ast {
 
     list.push(match token.kind {
       Symbol => parse_symbol(lexer),
+      String => parse_string(lexer),
       Int => parse_int(lexer),
       Bool => parse_bool(lexer),
       LParen | LBracket | LBrace => parse_list(lexer),
@@ -141,6 +149,12 @@ mod tests {
     parse("hello");
     parse("foo bar");
     parse("foo\nbar");
+  }
+
+  #[test]
+  fn parse_string() {
+    parse("\"foo\"");
+    parse("\"\\\"bar\\\"\"");
   }
 
   #[test]
