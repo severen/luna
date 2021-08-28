@@ -60,6 +60,12 @@ fn repl() -> Result<()> {
     // disabling history.
     None => panic!("Could not find a valid $HOME path."),
   };
+  // Ensure that the data directory exists to avoid errors when trying to write the
+  // history file.
+  if !dirs.data_dir().exists() {
+    // TODO: Handle errors more gracefully.
+    fs::create_dir(dirs.data_dir())?;
+  }
   let history_path = dirs.data_dir().join("history.txt");
 
   let mut rl = Editor::<()>::new();
