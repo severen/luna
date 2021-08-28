@@ -1,1 +1,6 @@
 tab_spaces = 2
+max_width = 89
+
+# TODO: Enable these once they are stable.
+# comment_width = 89
+# wrap_comments = true

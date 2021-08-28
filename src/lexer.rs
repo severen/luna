@@ -19,9 +19,9 @@ use std::fmt::{self, Display, Formatter};
 
 use logos::Logos;
 
-// NOTE: A custom struct is used instead of `std::ops::Range<usize>` so that
-//       `Token` can implement Copy, which is in turn needed for peeking
-//       support in the lexer. See rust-lang/rfcs#2848 for more.
+// NOTE: A custom struct is used instead of `std::ops::Range<usize>` so that `Token` can
+//       implement Copy, which is in turn needed for peeking support in the lexer.
+//       See rust-lang/rfcs#2848 for more.
 /// A span of bytes in some source code.
 #[derive(Debug, Eq, PartialEq, Copy, Clone)]
 pub struct Span {
@@ -31,8 +31,8 @@ pub struct Span {
 
 /// The lexical analyser for Luna source code.
 ///
-/// This struct is, in essence, a representation of some source code as an
-/// iterator of [`Token`]s.
+/// This struct is, in essence, a representation of some source code as an iterator of
+/// [`Token`]s.
 pub struct Lexer<'a> {
   /// The wrapped [`logos`] lexer struct.
   inner: logos::Lexer<'a, TokenKind>,
@@ -135,8 +135,8 @@ pub enum TokenKind {
   #[regex(r"true|false")]
   Bool,
 
-  /// A whitespace character, where 'whitespace' is defined to be any character
-  /// in the Unicode lexical class `Pattern_White_Space`.
+  /// A whitespace character, where 'whitespace' is defined to be any character in the
+  /// Unicode lexical class `Pattern_White_Space`.
   #[regex(r"\p{Pattern_White_Space}+", logos::skip)]
   Whitespace,
 
@@ -170,8 +170,8 @@ impl Display for TokenKind {
 pub fn get_matching(token_kind: TokenKind) -> TokenKind {
   use TokenKind::*;
 
-  // TODO: Perhaps devise a cleaner way of handling this. This function is
-  //       principally required by `parse_list` in the parser module.
+  // TODO: Perhaps devise a cleaner way of handling this. This function is principally
+  //       required by `parse_list` in the parser module.
   match token_kind {
     LParen => RParen,
     LBracket => RBracket,

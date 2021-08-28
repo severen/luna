@@ -24,9 +24,8 @@
 //! <list> -> (<datum>*) | [<datum>*] | {<datum>*}
 //! ```
 //!
-//! Note that the nonterminals `<datum>` and `<atom>` are only present in the
-//! EBNF for ease of discussion and reading; they do not exist in the `Ast`
-//! enum.
+//! Note that the nonterminals `<datum>` and `<atom>` are only present in the EBNF for
+//! ease of discussion and reading; they do not exist in the `Ast` enum.
 
 use crate::lexer::{get_matching, Lexer, TokenKind};
 
@@ -71,7 +70,7 @@ fn parse_symbol(lexer: &mut Lexer) -> Ast {
 
 /// Parse the `<string>` terminal.
 fn parse_string(lexer: &mut Lexer) -> Ast {
-    Ast::String(lexer.next().unwrap().lexeme.to_string())
+  Ast::String(lexer.next().unwrap().lexeme.to_string())
 }
 
 /// Parse the `<int>` terminal.
@@ -113,8 +112,7 @@ fn parse_list(lexer: &mut Lexer) -> Ast {
       _ => unimplemented!(),
     })
   }
-  // TODO: Be more robust when it comes to handling a list with only an opening
-  //       bracket.
+  // TODO: Be more robust when it comes to handling a list with only an opening bracket.
   lexer.next().unwrap(); // Consume the closing bracket.
 
   Ast::List(list)

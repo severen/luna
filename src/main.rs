@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Luna.  If not, see <https://www.gnu.org/licenses/>.
 
-//! Luna is an exercise in writing a Scheme-derived programming language for
-//! learning about programming language theory, design, and implementation.
+//! Luna is an exercise in writing a Scheme-derived programming language for learning
+//! about programming language theory, design, and implementation.
 //!
 //! For more information, see the README file in the repository root.
 
@@ -56,8 +56,8 @@ fn repl() -> Result<()> {
   // organisation name, which are currently not used.
   let dirs = match ProjectDirs::from("", "", "luna") {
     Some(dirs) => dirs,
-    // TODO: Handle a None value more gracefully by either throwing an error or
-    // disabling history.
+    // TODO: Handle a None value more gracefully by either throwing an error or disabling
+    //       history.
     None => panic!("Could not find a valid $HOME path."),
   };
   // Ensure that the data directory exists to avoid errors when trying to write the
