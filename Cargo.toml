@@ -6,12 +6,12 @@ license = "GPL-3.0"
 readme = "README.md"
 repository = "https://github.com/severen/luna.git"
 
-edition = "2018"
+edition = "2021"
 
 [dependencies]
-anyhow = "1.0.41"
-thiserror = "1.0.25"
-structopt = "0.3.21"
-rustyline = "8.2.0"
+anyhow = "1.0.44"
+thiserror = "1.0.30"
+structopt = "0.3.25"
+rustyline = "9.0.0"
 directories-next = "2.0.0"
 logos = "0.12.0"
