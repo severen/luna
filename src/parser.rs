@@ -15,7 +15,7 @@
 
 //! Types and functions for parsing Luna source code.
 //!
-//! The formal grammar for Luna is specified by the following EBNF:
+//! The formal grammar for Luna is specified by the following EBNF grammar:
 //!
 //! ```
 //! <program> -> <datum>*
@@ -24,62 +24,71 @@
 //! <list> -> (<datum>*) | [<datum>*] | {<datum>*}
 //! ```
 //!
-//! Note that the nonterminals `<datum>` and `<atom>` are only present in the EBNF for
-//! ease of discussion and reading; they do not exist in the `Ast` enum.
+//! Note that there is not exactly a 1-to-1 correspondence between the above
+//! grammar and the recursive descent parser in this module.
 
 use crate::lexer::{get_matching, Lexer, TokenKind};
 
+/// A symbolic expression.
 #[derive(Debug)]
-/// An abstract syntax tree of Luna source code.
-pub enum Ast {
-  Program(Vec<Ast>),
-  Symbol(String),
-  String(String),
+pub enum SExpr {
+  Atom(Atom),
+  List(List),
+}
+
+/// An atom in a symbolic expression.
+#[derive(Debug, Eq, PartialEq)]
+pub enum Atom {
   Int(i32),
   Bool(bool),
-  List(Vec<Ast>),
+  String(String),
+  Symbol(String),
 }
+
+/// A list in a symbolic expression.
+type List = Vec<SExpr>;
 
 /// Parse the given source code into an abstract syntax tree.
 ///
 /// This amounts to parsing the `<program>` nonterminal.
-pub fn parse(input: &str) -> Ast {
+pub fn parse(input: &str) -> Vec<SExpr> {
   let mut lexer = Lexer::new(strip_shebang(input));
 
   let mut program = Vec::new();
   while let Some(token) = lexer.peek() {
+    use SExpr::*;
     use TokenKind::*;
 
     program.push(match token.kind {
-      Symbol => parse_symbol(&mut lexer),
-      String => parse_string(&mut lexer),
-      Int => parse_int(&mut lexer),
-      Bool => parse_bool(&mut lexer),
-      LParen | LBracket | LBrace => parse_list(&mut lexer),
+      Symbol => Atom(parse_symbol(&mut lexer)),
+      String => Atom(parse_string(&mut lexer)),
+      Int => Atom(parse_int(&mut lexer)),
+      Bool => Atom(parse_bool(&mut lexer)),
+      LParen | LBracket | LBrace => List(parse_list(&mut lexer)),
       _ => unimplemented!(),
     })
   }
 
-  Ast::Program(program)
+  program
 }
 
 /// Parse the `<symbol>` terminal.
-fn parse_symbol(lexer: &mut Lexer) -> Ast {
-  Ast::Symbol(lexer.next().unwrap().lexeme.to_string())
+fn parse_symbol(lexer: &mut Lexer) -> Atom {
+  Atom::Symbol(lexer.next().unwrap().lexeme.to_string())
 }
 
 /// Parse the `<string>` terminal.
-fn parse_string(lexer: &mut Lexer) -> Ast {
-  Ast::String(lexer.next().unwrap().lexeme.to_string())
+fn parse_string(lexer: &mut Lexer) -> Atom {
+  Atom::String(lexer.next().unwrap().lexeme.to_string())
 }
 
 /// Parse the `<int>` terminal.
-fn parse_int(lexer: &mut Lexer) -> Ast {
-  Ast::Int(lexer.next().unwrap().lexeme.parse().unwrap())
+fn parse_int(lexer: &mut Lexer) -> Atom {
+  Atom::Int(lexer.next().unwrap().lexeme.parse().unwrap())
 }
 
 /// Parse the `<bool>` terminal.
-fn parse_bool(lexer: &mut Lexer) -> Ast {
+fn parse_bool(lexer: &mut Lexer) -> Atom {
   let lexeme = lexer.next().unwrap().lexeme;
   let value = match lexeme {
     "true" => true,
@@ -87,23 +96,24 @@ fn parse_bool(lexer: &mut Lexer) -> Ast {
     _ => unreachable!(),
   };
 
-  Ast::Bool(value)
+  Atom::Bool(value)
 }
 
 /// Parse the `<list>` nonterminal.
-fn parse_list(lexer: &mut Lexer) -> Ast {
+fn parse_list(lexer: &mut Lexer) -> List {
   let mut list = Vec::new();
 
   let opener = lexer.next().unwrap(); // Consume the opening bracket.
   while let Some(token) = lexer.peek() {
+    use SExpr::*;
     use TokenKind::*;
 
     list.push(match token.kind {
-      Symbol => parse_symbol(lexer),
-      String => parse_string(lexer),
-      Int => parse_int(lexer),
-      Bool => parse_bool(lexer),
-      LParen | LBracket | LBrace => parse_list(lexer),
+      Symbol => Atom(parse_symbol(lexer)),
+      String => Atom(parse_string(lexer)),
+      Int => Atom(parse_int(lexer)),
+      Bool => Atom(parse_bool(lexer)),
+      LParen | LBracket | LBrace => List(parse_list(lexer)),
       RParen | RBracket | RBrace => {
         // TODO: Handle this more gracefully.
         assert_eq!(token.kind, get_matching(opener.kind));
@@ -115,7 +125,7 @@ fn parse_list(lexer: &mut Lexer) -> Ast {
   // TODO: Be more robust when it comes to handling a list with only an opening bracket.
   lexer.next().unwrap(); // Consume the closing bracket.
 
-  Ast::List(list)
+  list
 }
 
 // TODO: Move this into a module containing program file abstractions.
