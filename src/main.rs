@@ -43,7 +43,7 @@ fn main() -> Result<()> {
 
   if let Some(path) = opts.file_path {
     let input = fs::read_to_string(path)?;
-    parse(&input);
+    println!("{:?}", parse(&input));
   } else {
     repl()?;
   }
@@ -68,7 +68,7 @@ fn repl() -> Result<()> {
   }
   let history_path = dirs.data_dir().join("history.txt");
 
-  let mut rl = Editor::<()>::new();
+  let mut rl = Editor::<()>::new()?;
   if rl.load_history(&history_path).is_err() {
     println!("No previous history.");
   }
