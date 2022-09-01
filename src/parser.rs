@@ -27,6 +27,8 @@
 //! Note that there is not exactly a 1-to-1 correspondence between the above
 //! grammar and the recursive descent parser in this module.
 
+use std::iter::Peekable;
+
 use crate::lexer::{get_matching, Lexer, TokenKind};
 
 /// A symbolic expression.
@@ -52,7 +54,7 @@ type List = Vec<SExpr>;
 ///
 /// This amounts to parsing the `<program>` nonterminal.
 pub fn parse(input: &str) -> Vec<SExpr> {
-  let mut lexer = Lexer::new(strip_shebang(input));
+  let mut lexer = Lexer::new(strip_shebang(input)).peekable();
 
   let mut program = Vec::new();
   while let Some(token) = lexer.peek() {
@@ -73,22 +75,22 @@ pub fn parse(input: &str) -> Vec<SExpr> {
 }
 
 /// Parse the `<symbol>` terminal.
-fn parse_symbol(lexer: &mut Lexer) -> Atom {
+fn parse_symbol(lexer: &mut Peekable<Lexer>) -> Atom {
   Atom::Symbol(lexer.next().unwrap().lexeme.to_string())
 }
 
 /// Parse the `<string>` terminal.
-fn parse_string(lexer: &mut Lexer) -> Atom {
+fn parse_string(lexer: &mut Peekable<Lexer>) -> Atom {
   Atom::String(lexer.next().unwrap().lexeme.to_string())
 }
 
 /// Parse the `<int>` terminal.
-fn parse_int(lexer: &mut Lexer) -> Atom {
+fn parse_int(lexer: &mut Peekable<Lexer>) -> Atom {
   Atom::Int(lexer.next().unwrap().lexeme.parse().unwrap())
 }
 
 /// Parse the `<bool>` terminal.
-fn parse_bool(lexer: &mut Lexer) -> Atom {
+fn parse_bool(lexer: &mut Peekable<Lexer>) -> Atom {
   let lexeme = lexer.next().unwrap().lexeme;
   let value = match lexeme {
     "true" => true,
@@ -100,7 +102,7 @@ fn parse_bool(lexer: &mut Lexer) -> Atom {
 }
 
 /// Parse the `<list>` nonterminal.
-fn parse_list(lexer: &mut Lexer) -> List {
+fn parse_list(lexer: &mut Peekable<Lexer>) -> List {
   let mut list = Vec::new();
 
   let opener = lexer.next().unwrap(); // Consume the opening bracket.
