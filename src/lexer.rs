@@ -15,19 +15,15 @@
 
 //! Types and functions for performing lexical analysis of Luna source code.
 
-use std::fmt::{self, Display, Formatter};
+use std::{
+  fmt::{self, Display, Formatter},
+  ops::Range,
+};
 
 use logos::Logos;
 
-// NOTE: A custom struct is used instead of `std::ops::Range<usize>` so that `Token` can
-//       implement Copy, which is in turn needed for peeking support in the lexer.
-//       See rust-lang/rfcs#2848 for more.
 /// A span of bytes in some source code.
-#[derive(Debug, Eq, PartialEq, Copy, Clone)]
-pub struct Span {
-  start: usize,
-  end: usize,
-}
+pub type Span = Range<usize>;
 
 /// The lexical analyser for Luna source code.
 ///
@@ -65,7 +61,7 @@ impl<'a> Iterator for Lexer<'a> {
 }
 
 /// A token produced by a [`Lexer`].
-#[derive(Debug, Eq, PartialEq, Copy, Clone)]
+#[derive(Debug, Eq, PartialEq, Clone)]
 pub struct Token<'a> {
   /// The lexical category of this token.
   pub kind: TokenKind,
