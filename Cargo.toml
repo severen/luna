@@ -9,8 +9,8 @@ repository = "https://github.com/severen/luna.git"
 edition = "2021"
 
 [dependencies]
-anyhow = "1.0.63"
-thiserror = "1.0.33"
+anyhow = "1.0.65"
+thiserror = "1.0.35"
 structopt = "0.3.26"
 rustyline = "10.0.0"
 directories-next = "2.0.0"
