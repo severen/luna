@@ -103,9 +103,8 @@ pub enum TokenKind {
   /// A symbol (an interned kind of string).
   #[regex(r"\p{XID_Continue}+")]
   Symbol,
-  // TODO: Convert this to a raw string.
   /// A string literal.
-  #[regex("\"([^\"\\\\]|\\\\.)*\"")]
+  #[regex(r#""([^"\\]|\\.)*""#)]
   String,
   // Give Int a higher priority to avoid ambiguity with Symbol.
   /// An integer literal.
