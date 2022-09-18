@@ -99,9 +99,9 @@ pub enum TokenKind {
   #[token("}")]
   RBrace,
 
-  // TODO: Expand this to include special characters.
+  // TODO: Check the Scheme standard to see what kinds of symbols are allowed.
   /// A symbol (an interned kind of string).
-  #[regex(r"\p{XID_Continue}+")]
+  #[regex(r"(\p{XID_Continue}|\+|-|\*|/|\?|!)+")]
   Symbol,
   /// A string literal.
   #[regex(r#""([^"\\]|\\.)*""#)]
@@ -114,8 +114,8 @@ pub enum TokenKind {
   #[regex(r"true|false")]
   Bool,
 
-  /// A whitespace character, where 'whitespace' is defined to be any character in the
-  /// Unicode lexical class `Pattern_White_Space`.
+  /// A whitespace character, where 'whitespace' is any character having the
+  /// `Pattern_White_Space` Unicode property.
   #[regex(r"\p{Pattern_White_Space}+", logos::skip)]
   Whitespace,
 
@@ -198,6 +198,13 @@ mod tests {
     check("foo", Symbol);
     check("foo123", Symbol);
     check("λ", Symbol);
+    check("+", Symbol);
+    check("-", Symbol);
+    check("*", Symbol);
+    check("/", Symbol);
+    check("long-function-name", Symbol);
+    check("eq?", Symbol);
+    check("set!", Symbol);
   }
 
   #[test]
