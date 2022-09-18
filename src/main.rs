@@ -23,7 +23,7 @@ use std::fs;
 use anyhow::Result;
 use directories_next::ProjectDirs;
 use rustyline::{error::ReadlineError, Editor};
-use structopt::StructOpt;
+use clap::StructOpt;
 
 mod lexer;
 mod parser;
