@@ -15,4 +15,8 @@ clap = { version = "3.2.22", features = ["derive", "unicode", "wrap_help"] }
 rustyline = "10.0.0"
 directories-next = "2.0.0"
 logos = "0.12.1"
-derive_more = "0.99.17"
+
+[dependencies.derive_more]
+version = "0.99.17"
+default_features = false
+features = ["display"]
