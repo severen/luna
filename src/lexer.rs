@@ -15,11 +15,9 @@
 
 //! Types and functions for performing lexical analysis of Luna source code.
 
-use std::{
-  fmt::{self, Display, Formatter},
-  ops::Range,
-};
+use std::ops::Range;
 
+use derive_more::Display;
 use logos::Logos;
 
 /// A span of bytes in some source code.
@@ -61,9 +59,11 @@ impl<'a> Iterator for Lexer<'a> {
 }
 
 /// A token produced by a [`Lexer`].
-#[derive(Debug, Eq, PartialEq, Clone)]
+#[derive(Debug, Display, Eq, PartialEq, Clone)]
+#[display(fmt = "{}", kind)]
 pub struct Token<'a> {
   /// The lexical category of this token.
+  // #[display(fmt = "{}", kind)]
   pub kind: TokenKind,
   /// The lexeme that matched the pattern for this token.
   pub lexeme: &'a str,
@@ -71,31 +71,31 @@ pub struct Token<'a> {
   pub span: Span,
 }
 
-impl<'a> Display for Token<'a> {
-  fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-    Display::fmt(&self.kind, f)
-  }
-}
-
 /// The lexical category of a [`Token`].
-#[derive(Logos, Debug, Copy, Clone, PartialEq, Eq)]
+#[derive(Logos, Debug, Display, Copy, Clone, PartialEq, Eq)]
 pub enum TokenKind {
   /// A left bracket `(` character.
+  #[display(fmt = "(")]
   #[token("(")]
   LParen,
   /// A right bracket `)` character.
+  #[display(fmt = ")")]
   #[token(")")]
   RParen,
   /// A left square bracket `[` character.
+  #[display(fmt = "[")]
   #[token("[")]
   LBracket,
   /// A right square bracket `]` character.
+  #[display(fmt = "]")]
   #[token("]")]
   RBracket,
   /// A left brace `{` character.
+  #[display(fmt = "{{")]
   #[token("{")]
   LBrace,
   /// A right brace `}` character.
+  #[display(fmt = "}}")]
   #[token("}")]
   RBrace,
 
@@ -106,7 +106,7 @@ pub enum TokenKind {
   /// A string literal.
   #[regex(r#""([^"\\]|\\.)*""#)]
   String,
-  // Give Int a higher priority to avoid ambiguity with Symbol.
+  // NOTE: Int has a higher priority in order to avoid ambiguity with Symbol.
   /// An integer literal.
   #[regex(r"(\+|-)?[0-9]+", priority = 2)]
   Int,
@@ -122,27 +122,6 @@ pub enum TokenKind {
   /// A 'token' used for indicating errors encountered during lexical analysis.
   #[error]
   Error,
-}
-
-impl Display for TokenKind {
-  fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-    use TokenKind::*;
-
-    match self {
-      LParen => write!(f, "("),
-      RParen => write!(f, ")"),
-      LBracket => write!(f, "["),
-      RBracket => write!(f, "]"),
-      LBrace => write!(f, "{{"),
-      RBrace => write!(f, "}}"),
-      Symbol => write!(f, "Symbol"),
-      String => write!(f, "String"),
-      Int => write!(f, "Int"),
-      Bool => write!(f, "Bool"),
-      Whitespace => write!(f, "Whitespace"),
-      Error => write!(f, "Error"),
-    }
-  }
 }
 
 /// Get the matching token for a given token from a token pair.
