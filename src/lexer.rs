@@ -63,7 +63,6 @@ impl<'a> Iterator for Lexer<'a> {
 #[display(fmt = "{}", kind)]
 pub struct Token<'a> {
   /// The lexical category of this token.
-  // #[display(fmt = "{}", kind)]
   pub kind: TokenKind,
   /// The lexeme that matched the pattern for this token.
   pub lexeme: &'a str,
@@ -99,9 +98,10 @@ pub enum TokenKind {
   #[token("}")]
   RBrace,
 
-  // TODO: Check the Scheme standard to see what kinds of symbols are allowed.
+  // The set of extended identifier characters conforms to the minimum set required by
+  // the R7RS (Small) specification.
   /// A symbol (an interned kind of string).
-  #[regex(r"(\p{XID_Continue}|\+|-|\*|/|\?|!)+")]
+  #[regex(r"(\p{XID_Continue}|!|\$|%|\*|\+|-|\.|/|:|<|=|>|\?|@|\^|_|~)+")]
   Symbol,
   /// A string literal.
   #[regex(r#""([^"\\]|\\.)*""#)]
