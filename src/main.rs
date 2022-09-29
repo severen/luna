@@ -21,27 +21,29 @@
 use std::fs;
 
 use anyhow::Result;
+use clap::Parser;
 use directories_next::ProjectDirs;
 use rustyline::{error::ReadlineError, Editor};
-use clap::StructOpt;
 
 mod lexer;
 mod parser;
 
 use crate::parser::parse;
 
+const ABOUT: &str = "An interpreter for the Scheme programming language.";
+
 /// Parsed command line arguments.
-#[derive(Debug, StructOpt)]
-#[structopt(name = "luna", about = "A Lispy programming language.")]
-struct Options {
-  #[structopt(name = "FILE")]
+#[derive(Debug, Parser)]
+#[command(author, version, about = ABOUT)]
+struct Args {
+  #[arg(name = "FILE")]
   file_path: Option<String>,
 }
 
 fn main() -> Result<()> {
-  let opts = Options::from_args();
+  let args = Args::parse();
 
-  if let Some(path) = opts.file_path {
+  if let Some(path) = args.file_path {
     let input = fs::read_to_string(path)?;
     println!("{:?}", parse(&input));
   } else {
