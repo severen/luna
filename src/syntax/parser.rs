@@ -14,18 +14,6 @@
 // along with Luna.  If not, see <https://www.gnu.org/licenses/>.
 
 //! Types and functions for parsing Luna source code.
-//!
-//! The formal grammar for Luna is specified by the following EBNF grammar:
-//!
-//! ```
-//! <program> -> <datum>*
-//! <datum> -> <atom> | <list>
-//! <atom> -> <symbol> | <int> | <bool>
-//! <list> -> (<datum>*) | [<datum>*] | {<datum>*}
-//! ```
-//!
-//! Note that there is not exactly a 1-to-1 correspondence between the above
-//! grammar and the recursive descent parser in this module.
 
 use std::iter::Peekable;
 
@@ -64,8 +52,6 @@ macro_rules! error {
 }
 
 /// Parse the given source code into an abstract syntax tree.
-///
-/// This amounts to parsing the `<program>` nonterminal.
 pub fn parse(input: &str) -> Result<Vec<SExpr>> {
   let mut lexer = Lexer::new(strip_shebang(input)).peekable();
 
@@ -96,22 +82,22 @@ pub fn parse(input: &str) -> Result<Vec<SExpr>> {
   Ok(program)
 }
 
-/// Parse the `<symbol>` terminal.
+/// Parse a symbol.
 fn parse_symbol(lexer: &mut Peekable<Lexer>) -> Atom {
   Atom::Symbol(lexer.next().unwrap().lexeme.to_string())
 }
 
-/// Parse the `<string>` terminal.
+/// Parse a string.
 fn parse_string(lexer: &mut Peekable<Lexer>) -> Atom {
   Atom::String(lexer.next().unwrap().lexeme.to_string())
 }
 
-/// Parse the `<int>` terminal.
+/// Parse an integer.
 fn parse_int(lexer: &mut Peekable<Lexer>) -> Atom {
   Atom::Int(lexer.next().unwrap().lexeme.parse().unwrap())
 }
 
-/// Parse the `<bool>` terminal.
+/// Parse a boolean.
 fn parse_bool(lexer: &mut Peekable<Lexer>) -> Atom {
   let lexeme = lexer.next().unwrap().lexeme;
   let value = match lexeme {
@@ -123,7 +109,7 @@ fn parse_bool(lexer: &mut Peekable<Lexer>) -> Atom {
   Atom::Bool(value)
 }
 
-/// Parse the `<list>` nonterminal.
+/// Parse a list.
 fn parse_list(lexer: &mut Peekable<Lexer>) -> Result<List> {
   let mut list = Vec::new();
 
