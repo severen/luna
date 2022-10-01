@@ -52,6 +52,9 @@ fn main() -> Result<()> {
 }
 
 fn repl() -> Result<()> {
+  println!("Welcome to Luna v0.1.0!");
+  println!("Press C-d to exit.");
+
   // The first and second parameters are respectively a reverse domain name and
   // organisation name, which are currently not used.
   let dirs = match ProjectDirs::from("", "", "luna") {
