@@ -30,13 +30,11 @@ mod parser;
 
 use crate::parser::parse;
 
-const ABOUT: &str = "An interpreter for the Scheme programming language.";
-
 /// Parsed command line arguments.
 #[derive(Debug, Parser)]
-#[command(author, version, about = ABOUT)]
+#[command(author, version, about)]
 struct Args {
-  #[arg(name = "FILE")]
+  #[arg(name = "FILE", help = "A path to a Scheme program to execute")]
   file_path: Option<String>,
 }
 

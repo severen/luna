@@ -2,7 +2,9 @@
 name = "luna"
 version = "0.1.0"
 authors = ["Severen Redwood <severen@shrike.me>"]
+description = "An interpreter for the Scheme programming language."
 license = "GPL-3.0"
+
 readme = "README.md"
 repository = "https://github.com/severen/luna.git"
 
