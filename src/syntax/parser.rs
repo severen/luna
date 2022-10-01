@@ -29,7 +29,10 @@
 
 use std::iter::Peekable;
 
-use crate::lexer::{get_matching, Lexer, TokenKind};
+use crate::syntax::{
+  lexer::{Lexer, TokenKind},
+  Error, ErrorKind, Span,
+};
 
 /// A symbolic expression.
 #[derive(Debug)]
@@ -50,10 +53,12 @@ pub enum Atom {
 /// A list in a symbolic expression.
 type List = Vec<SExpr>;
 
+type Result<T> = std::result::Result<T, Error>;
+
 /// Parse the given source code into an abstract syntax tree.
 ///
 /// This amounts to parsing the `<program>` nonterminal.
-pub fn parse(input: &str) -> Vec<SExpr> {
+pub fn parse(input: &str) -> Result<Vec<SExpr>> {
   let mut lexer = Lexer::new(strip_shebang(input)).peekable();
 
   let mut program = Vec::new();
@@ -61,17 +66,32 @@ pub fn parse(input: &str) -> Vec<SExpr> {
     use SExpr::*;
     use TokenKind::*;
 
-    program.push(match token.kind {
+    let sexpr = match token.kind {
       Symbol => Atom(parse_symbol(&mut lexer)),
       String => Atom(parse_string(&mut lexer)),
       Int => Atom(parse_int(&mut lexer)),
       Bool => Atom(parse_bool(&mut lexer)),
-      LParen | LBracket | LBrace => List(parse_list(&mut lexer)),
-      _ => unimplemented!(),
-    })
+      LParen | LBracket | LBrace => List(parse_list(&mut lexer)?),
+      RParen | RBracket | RBrace => {
+        return Err(Error {
+          span: Span { start: token.span.start, end: token.span.end },
+          kind: ErrorKind::UnexpectedBracket,
+        })
+      },
+      // NOTE: This is unreachable because the lexer should never _actually_ emit this
+      //       variant.
+      Whitespace => unreachable!(),
+      Invalid => {
+        return Err(Error {
+          span: Span { start: token.span.start, end: token.span.end },
+          kind: ErrorKind::InvalidToken,
+        })
+      },
+    };
+    program.push(sexpr);
   }
 
-  program
+  Ok(program)
 }
 
 /// Parse the `<symbol>` terminal.
@@ -102,32 +122,53 @@ fn parse_bool(lexer: &mut Peekable<Lexer>) -> Atom {
 }
 
 /// Parse the `<list>` nonterminal.
-fn parse_list(lexer: &mut Peekable<Lexer>) -> List {
+fn parse_list(lexer: &mut Peekable<Lexer>) -> Result<List> {
   let mut list = Vec::new();
 
-  let opener = lexer.next().unwrap(); // Consume the opening bracket.
+  // NOTE: It is an invariant that an opening bracket be present, so we can consume
+  //       it and unwrap.
+  let opener = lexer.next().expect("an opening bracket should always be present");
+  let Span { start: list_start, end: mut list_end } = opener.span;
+
   while let Some(token) = lexer.peek() {
     use SExpr::*;
     use TokenKind::*;
 
+    list_end = token.span.end;
     list.push(match token.kind {
       Symbol => Atom(parse_symbol(lexer)),
       String => Atom(parse_string(lexer)),
       Int => Atom(parse_int(lexer)),
       Bool => Atom(parse_bool(lexer)),
-      LParen | LBracket | LBrace => List(parse_list(lexer)),
+      LParen | LBracket | LBrace => List(parse_list(lexer)?),
       RParen | RBracket | RBrace => {
-        // TODO: Handle this more gracefully.
-        assert_eq!(token.kind, get_matching(opener.kind));
+        if token.kind != opener.kind.closer() {
+          return Err(crate::syntax::parser::Error {
+            span: Span { start: list_start, end: list_end },
+            kind: ErrorKind::UnexpectedBracket,
+          });
+        }
         break;
-      }
-      _ => unimplemented!(),
+      },
+      // NOTE: This is unreachable because the lexer should never _actually_ emit this
+      //       variant.
+      Whitespace => unreachable!(),
+      Invalid => {
+        return Err(Error {
+          span: Span { start: token.span.start, end: token.span.end },
+          kind: ErrorKind::InvalidToken,
+        })
+      },
     })
   }
-  // TODO: Be more robust when it comes to handling a list with only an opening bracket.
-  lexer.next().unwrap(); // Consume the closing bracket.
 
-  list
+  // Consume the closing bracket.
+  lexer.next().ok_or(Error {
+    span: Span { start: list_start, end: list_end },
+    kind: ErrorKind::UnmatchedBracket,
+  })?;
+
+  Ok(list)
 }
 
 // TODO: Move this into a module containing program file abstractions.
@@ -135,10 +176,7 @@ fn parse_list(lexer: &mut Peekable<Lexer>) -> List {
 pub fn strip_shebang(input: &str) -> &str {
   if input.starts_with("#!") {
     // The byte index of the first character after the shebang line.
-    let i = input
-      .find('\n')
-      .map(|i| i + 1)
-      .unwrap_or_else(|| input.len());
+    let i = input.find('\n').map(|i| i + 1).unwrap_or_else(|| input.len());
     &input[i..]
   } else {
     input
@@ -150,51 +188,62 @@ mod tests {
   use super::*;
 
   #[test]
-  fn parse_program() {
-    parse("(defn fac [n]\n(fac (minus n 1)))\n\n(print (fac 5))");
+  fn parse_program() -> Result<()> {
+    parse("(defn fac [n]\n(fac (minus n 1)))\n\n(print (fac 5))")?;
+    Ok(())
   }
 
   #[test]
-  fn parse_symbol() {
-    parse("hello");
-    parse("foo bar");
-    parse("foo\nbar");
+  fn parse_symbol() -> Result<()> {
+    parse("hello")?;
+    parse("foo bar")?;
+    parse("foo\nbar")?;
+
+    Ok(())
   }
 
   #[test]
-  fn parse_string() {
-    parse("\"foo\"");
-    parse("\"\\\"bar\\\"\"");
+  fn parse_string() -> Result<()> {
+    parse("\"foo\"")?;
+    parse("\"\\\"bar\\\"\"")?;
+
+    Ok(())
   }
 
   #[test]
-  fn parse_int() {
-    parse("10");
-    parse("0 11");
-    parse("0 -11");
+  fn parse_int() -> Result<()> {
+    parse("10")?;
+    parse("0 11")?;
+    parse("0 -11")?;
+
+    Ok(())
   }
 
   #[test]
-  fn parse_bool() {
-    parse("true");
-    parse("false");
+  fn parse_bool() -> Result<()> {
+    parse("true")?;
+    parse("false")?;
+
+    Ok(())
   }
 
   #[test]
-  fn parse_list() {
+  fn parse_list() -> Result<()> {
     // Can we parse empty lists?
-    parse("()");
-    parse("[]");
-    parse("{}");
+    parse("()")?;
+    parse("[]")?;
+    parse("{}")?;
 
     // Can we parse normal lists?
-    parse("(1 2 3)");
-    parse("[1 2 3]");
-    parse("{1 2 3}");
+    parse("(1 2 3)")?;
+    parse("[1 2 3]")?;
+    parse("{1 2 3}")?;
 
     // Can we parse nested lists?
-    parse("(1 [2 {3}])");
-    parse("{1 [2 3]}");
+    parse("(1 [2 {3}])")?;
+    parse("{1 [2 3]}")?;
+
+    Ok(())
   }
 
   #[test]

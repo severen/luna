@@ -25,10 +25,9 @@ use clap::Parser;
 use directories_next::ProjectDirs;
 use rustyline::{error::ReadlineError, Editor};
 
-mod lexer;
-mod parser;
+mod syntax;
 
-use crate::parser::parse;
+use crate::syntax::parser::parse;
 
 /// Parsed command line arguments.
 #[derive(Debug, Parser)]
@@ -80,23 +79,22 @@ fn repl() -> Result<()> {
     let line = rl.readline("> ");
     match line {
       Ok(line) => {
-        rl.add_history_entry(line.as_str());
+        rl.add_history_entry(&line);
 
         // TODO: Properly display and format syntax trees.
-        println!("{:?}", parse(&line));
-      }
-      Err(ReadlineError::Interrupted) => {
-        println!("CTRL-C");
-        break;
-      }
-      Err(ReadlineError::Eof) => {
-        println!("CTRL-D");
-        break;
-      }
+        match parse(&line) {
+          Ok(sexpr) => println!("{:?}", sexpr),
+          Err(error) => {
+            println!("Syntax error: {}", error);
+            println!("context: {}", &line[error.span.start..error.span.end]);
+          },
+        }
+      },
+      Err(ReadlineError::Interrupted | ReadlineError::Eof) => break,
       Err(error) => {
         println!("Error: {:?}", error);
         break;
-      }
+      },
     }
   }
 

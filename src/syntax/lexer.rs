@@ -15,48 +15,10 @@
 
 //! Types and functions for performing lexical analysis of Luna source code.
 
-use std::ops::Range;
-
 use derive_more::Display;
 use logos::Logos;
 
-/// A span of bytes in some source code.
-pub type Span = Range<usize>;
-
-/// The lexical analyser for Luna source code.
-///
-/// This struct is, in essence, a representation of some source code as an iterator of
-/// [`Token`]s.
-pub struct Lexer<'a> {
-  /// The wrapped [`logos`] lexer struct.
-  inner: logos::Lexer<'a, TokenKind>,
-}
-
-impl<'a> Lexer<'a> {
-  /// Create a new lexer over a given input string.
-  pub fn new(input: &'a str) -> Self {
-    Self {
-      inner: TokenKind::lexer(input),
-    }
-  }
-}
-
-impl<'a> Iterator for Lexer<'a> {
-  type Item = Token<'a>;
-
-  fn next(&mut self) -> Option<Self::Item> {
-    let kind = self.inner.next()?;
-    let lexeme = self.inner.slice();
-    let span = self.inner.span();
-    let (start, end) = (span.start, span.end);
-
-    Some(Self::Item {
-      kind,
-      lexeme,
-      span: Span { start, end },
-    })
-  }
-}
+use crate::syntax::Span;
 
 /// A token produced by a [`Lexer`].
 #[derive(Debug, Display, Eq, PartialEq, Clone)]
@@ -121,31 +83,61 @@ pub enum TokenKind {
 
   /// A 'token' used for indicating errors encountered during lexical analysis.
   #[error]
-  Error,
+  Invalid,
 }
 
-/// Get the matching token for a given token from a token pair.
-pub fn get_matching(token_kind: TokenKind) -> TokenKind {
-  use TokenKind::*;
+impl TokenKind {
+  /// Get the closing token for this token if it has one.
+  pub fn closer(&self) -> TokenKind {
+    use TokenKind::*;
 
-  // TODO: Perhaps devise a cleaner way of handling this. This function is principally
-  //       required by `parse_list` in the parser module.
-  match token_kind {
-    LParen => RParen,
-    LBracket => RBracket,
-    LBrace => RBrace,
-    RParen => LParen,
-    RBracket => LBracket,
-    RBrace => LBrace,
-    _ => panic!("Delimiter token expected"),
+    // TODO: Perhaps devise a cleaner way of handling this. This function is principally
+    //       required by `parse_list` in the parser module.
+    match self {
+      LParen => RParen,
+      LBracket => RBracket,
+      LBrace => RBrace,
+      RParen => LParen,
+      RBracket => LBracket,
+      RBrace => LBrace,
+      _ => panic!("Delimiter token expected"),
+    }
+  }
+}
+
+/// The lexical analyser for Luna source code.
+///
+/// This struct is, in essence, a representation of some source code as an iterator of
+/// [`Token`]s.
+pub struct Lexer<'a> {
+  /// The wrapped [`logos`] lexer struct.
+  inner: logos::Lexer<'a, TokenKind>,
+}
+
+impl<'a> Lexer<'a> {
+  /// Create a new lexer over a given input string.
+  pub fn new(input: &'a str) -> Self {
+    Self { inner: TokenKind::lexer(input) }
+  }
+}
+
+impl<'a> Iterator for Lexer<'a> {
+  type Item = Token<'a>;
+
+  fn next(&mut self) -> Option<Self::Item> {
+    let kind = self.inner.next()?;
+    let lexeme = self.inner.slice();
+    let span = self.inner.span();
+
+    Some(Self::Item { kind, lexeme, span })
   }
 }
 
 #[cfg(test)]
 mod tests {
-  use super::*;
-
   use TokenKind::*;
+
+  use super::*;
 
   fn check(input: &str, token: TokenKind) {
     let mut lexer = TokenKind::lexer(input);
