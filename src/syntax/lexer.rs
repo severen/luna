@@ -78,7 +78,7 @@ pub enum TokenKind {
 
   /// A whitespace character, where 'whitespace' is any character having the
   /// `Pattern_White_Space` Unicode property.
-  #[regex(r"\p{Pattern_White_Space}+", logos::skip)]
+  #[regex(r"\p{Pattern_White_Space}+|;[^\r\n]*(\r\n|\n)?", logos::skip)]
   Whitespace,
 
   /// A 'token' used for indicating errors encountered during lexical analysis.
@@ -213,6 +213,18 @@ mod tests {
     assert_eq!(lexer.next(), None);
 
     let mut lexer = TokenKind::lexer("\t \n");
+    assert_eq!(lexer.next(), None);
+  }
+
+  #[test]
+  fn ignore_comments() {
+    let mut lexer = TokenKind::lexer("; Hi!");
+    assert_eq!(lexer.next(), None);
+
+    let mut lexer = TokenKind::lexer("; Hi!\n");
+    assert_eq!(lexer.next(), None);
+
+    let mut lexer = TokenKind::lexer("; Hi!\r\n");
     assert_eq!(lexer.next(), None);
   }
 }
