@@ -77,7 +77,7 @@ fn repl() -> Result<()> {
   }
 
   loop {
-    let line = rl.readline(">>> ");
+    let line = rl.readline("> ");
     match line {
       Ok(line) => {
         rl.add_history_entry(line.as_str());
