@@ -1,6 +1,12 @@
 tab_spaces = 2
-max_width = 89
 
-# TODO: Enable these once they are stable.
-# comment_width = 89
-# wrap_comments = true
+max_width = 89
+comment_width = 89
+wrap_comments = true
+
+# Keep expressions on one line more often.
+use_small_heuristics = "Max"
+
+match_block_trailing_comma = true
+
+group_imports = "StdExternalCrate"
