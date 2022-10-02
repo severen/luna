@@ -17,11 +17,7 @@
 
 use std::iter::Peekable;
 
-use crate::syntax::{
-  self,
-  lexer::{Lexer, TokenKind},
-  Span,
-};
+use crate::syntax::{self, Lexer, Span, TokenKind};
 
 /// A symbolic expression.
 #[derive(Eq, PartialEq, Debug)]

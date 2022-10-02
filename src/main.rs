@@ -23,7 +23,7 @@ use directories_next::ProjectDirs;
 use rustyline::{error::ReadlineError, Editor};
 
 #[rustfmt::skip]
-use luna::syntax::parser::parse;
+use luna::syntax::parse;
 
 /// Parsed command line arguments.
 #[derive(Parser, Debug)]

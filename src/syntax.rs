@@ -17,8 +17,11 @@
 
 use thiserror::Error;
 
-pub mod lexer;
-pub mod parser;
+mod lexer;
+mod parser;
+
+pub use lexer::{Lexer, Token, TokenKind};
+pub use parser::{parse, SExpr};
 
 /// A byte position within an input stream.
 pub type BytePos = usize;
