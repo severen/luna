@@ -40,7 +40,7 @@ pub struct Span {
 
 /// A syntax error.
 ///
-/// This error struct is emitted by the [`parser::parse()`] function if it encounters a
+/// This error struct is emitted by the [`parse`] function if it encounters a
 /// span of source code containing a syntactical error. The specific kind of error is
 /// denoted by the [`ErrorKind`] enum.
 #[derive(Copy, Clone, Eq, PartialEq, Error, Debug)]
@@ -58,7 +58,7 @@ pub enum ErrorKind {
   /// An unexpected closing bracket was encountered.
   #[error("Unexpected bracket")]
   UnexpectedBracket,
-  /// An opening bracket without its correpsonding closing bracket was encountered.
+  /// An opening bracket without its corresponding closing bracket was encountered.
   #[error("Unmatched bracket")]
   UnmatchedBracket,
   /// An invalid token was encountered.
