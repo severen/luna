@@ -26,23 +26,17 @@ use crate::syntax::{
 /// A symbolic expression.
 #[derive(Eq, PartialEq, Debug)]
 pub enum SExpr {
-  /// An atomic value.
-  Atom(Atom),
-  /// A list of atomic values.
-  List(List),
-}
-
-/// An atomic value in a symbolic expression.
-#[derive(Eq, PartialEq, Debug)]
-pub enum Atom {
-  Int(i32),
-  Bool(bool),
-  String(String),
+  /// A symbol atom.
   Symbol(String),
+  /// A string atom.
+  String(String),
+  /// An integer atom.
+  Int(i32),
+  // A Boolean atom.
+  Bool(bool),
+  /// A list of symbolic expressions.
+  List(Vec<SExpr>),
 }
-
-/// A list in a symbolic expression.
-type List = Vec<SExpr>;
 
 /// A specialiation of [`Result`](std::result::Result) for brevity when writing return
 /// types for parser functions.
@@ -61,15 +55,14 @@ pub fn parse(input: &str) -> Result<Vec<SExpr>> {
 
   let mut program = Vec::new();
   while let Some(token) = lexer.peek() {
-    use SExpr::*;
     use TokenKind::*;
 
     let sexpr = match token.kind {
-      Symbol => Atom(parse_symbol(&mut lexer)),
-      String => Atom(parse_string(&mut lexer)),
-      Int => Atom(parse_int(&mut lexer)),
-      Bool => Atom(parse_bool(&mut lexer)),
-      LParen | LBracket | LBrace => List(parse_list(&mut lexer)?),
+      Symbol => parse_symbol(&mut lexer),
+      String => parse_string(&mut lexer),
+      Int => parse_int(&mut lexer),
+      Bool => parse_bool(&mut lexer),
+      LParen | LBracket | LBrace => parse_list(&mut lexer)?,
       RParen | RBracket | RBrace => {
         error!(Span { start: token.span.start, end: token.span.end }, UnexpectedBracket)
       },
@@ -87,22 +80,22 @@ pub fn parse(input: &str) -> Result<Vec<SExpr>> {
 }
 
 /// Parse a symbol.
-fn parse_symbol(lexer: &mut Peekable<Lexer>) -> Atom {
-  Atom::Symbol(lexer.next().unwrap().lexeme.to_string())
+fn parse_symbol(lexer: &mut Peekable<Lexer>) -> SExpr {
+  SExpr::Symbol(lexer.next().unwrap().lexeme.to_string())
 }
 
 /// Parse a string.
-fn parse_string(lexer: &mut Peekable<Lexer>) -> Atom {
-  Atom::String(lexer.next().unwrap().lexeme.to_string())
+fn parse_string(lexer: &mut Peekable<Lexer>) -> SExpr {
+  SExpr::String(lexer.next().unwrap().lexeme.to_string())
 }
 
 /// Parse an integer.
-fn parse_int(lexer: &mut Peekable<Lexer>) -> Atom {
-  Atom::Int(lexer.next().unwrap().lexeme.parse().unwrap())
+fn parse_int(lexer: &mut Peekable<Lexer>) -> SExpr {
+  SExpr::Int(lexer.next().unwrap().lexeme.parse().unwrap())
 }
 
 /// Parse a boolean.
-fn parse_bool(lexer: &mut Peekable<Lexer>) -> Atom {
+fn parse_bool(lexer: &mut Peekable<Lexer>) -> SExpr {
   let lexeme = lexer.next().unwrap().lexeme;
   let value = match lexeme {
     "true" => true,
@@ -110,11 +103,11 @@ fn parse_bool(lexer: &mut Peekable<Lexer>) -> Atom {
     _ => unreachable!(),
   };
 
-  Atom::Bool(value)
+  SExpr::Bool(value)
 }
 
 /// Parse a list.
-fn parse_list(lexer: &mut Peekable<Lexer>) -> Result<List> {
+fn parse_list(lexer: &mut Peekable<Lexer>) -> Result<SExpr> {
   let mut list = Vec::new();
 
   // NOTE: It is an invariant that an opening bracket be present, so we can consume
@@ -123,16 +116,15 @@ fn parse_list(lexer: &mut Peekable<Lexer>) -> Result<List> {
   let Span { start: list_start, end: mut list_end } = opener.span;
 
   while let Some(token) = lexer.peek() {
-    use SExpr::*;
     use TokenKind::*;
 
     list_end = token.span.end;
     list.push(match token.kind {
-      Symbol => Atom(parse_symbol(lexer)),
-      String => Atom(parse_string(lexer)),
-      Int => Atom(parse_int(lexer)),
-      Bool => Atom(parse_bool(lexer)),
-      LParen | LBracket | LBrace => List(parse_list(lexer)?),
+      Symbol => parse_symbol(lexer),
+      String => parse_string(lexer),
+      Int => parse_int(lexer),
+      Bool => parse_bool(lexer),
+      LParen | LBracket | LBrace => parse_list(lexer)?,
       RParen | RBracket | RBrace => {
         if token.kind != opener.kind.closer() {
           error!(Span { start: list_start, end: list_end }, UnexpectedBracket);
@@ -153,7 +145,7 @@ fn parse_list(lexer: &mut Peekable<Lexer>) -> Result<List> {
     error!(Span { start: list_start, end: list_end }, UnmatchedBracket);
   }
 
-  Ok(list)
+  Ok(SExpr::List(list))
 }
 
 // TODO: Move this into a module containing program file abstractions.
