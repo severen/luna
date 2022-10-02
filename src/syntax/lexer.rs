@@ -128,6 +128,8 @@ impl<'a> Iterator for Lexer<'a> {
     let kind = self.inner.next()?;
     let lexeme = self.inner.slice();
     let span = self.inner.span();
+    // Convert from an std::ops::Range to a crate::syntax::Span.
+    let span = Span { start: span.start, end: span.end };
 
     Some(Self::Item { kind, lexeme, span })
   }

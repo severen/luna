@@ -13,19 +13,27 @@
 // You should have received a copy of the GNU General Public License
 // along with Luna.  If not, see <https://www.gnu.org/licenses/>.
 
-use std::ops::Range;
-
 use thiserror::Error;
 
 pub mod lexer;
 pub mod parser;
 
-/// A span of text represented by an inclusive start byte index and an exclusive end byte
-/// index.
-pub type Span = Range<usize>;
+/// A byte position within an input stream.
+pub type BytePos = usize;
+
+/// A span of bytes within an input stream.
+///
+/// Specifically, a span is a range [a, b) for integers a and b such that a < b.
+#[derive(Copy, Clone, Eq, PartialEq, Debug)]
+pub struct Span {
+  /// The first byte in the range.
+  pub start: BytePos,
+  /// One byte past the end of the range.
+  pub end: BytePos,
+}
 
 /// A syntax error.
-#[derive(Debug, Error)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug, Error)]
 #[error("{kind}")]
 pub struct Error {
   /// The span of text in which this syntax error is present.
