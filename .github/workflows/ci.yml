@@ -1,6 +1,13 @@
 name: CI
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    types:
+      - opened
+      - synchronize
 
 env:
   RUST_BACKTRACE: full
@@ -9,42 +16,56 @@ env:
 jobs:
   lint:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout source code
         uses: actions/checkout@v2
-
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
         with:
-          profile: minimal
           toolchain: stable
           components: clippy
+          profile: minimal
           override: true
+      - uses: Swatinem/rust-cache@v1
       - name: Run linter
         uses: actions-rs/cargo@v1
         with:
           command: clippy
           args: -- -D warnings
-
-  test:
+  format:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout source code
         uses: actions/checkout@v2
-
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
         with:
+          toolchain: nightly
+          components: rustfmt
           profile: minimal
-          toolchain: stable
           override: true
+      - uses: Swatinem/rust-cache@v1
+      - name: Check formatting
+        uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: --check
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v2
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          override: true
+      - uses: Swatinem/rust-cache@v1
       - name: Run tests
         uses: actions-rs/cargo@v1
         with:
           command: test
-
   build:
     runs-on: ubuntu-latest
     strategy:
@@ -53,17 +74,16 @@ jobs:
           - stable
           - beta
           - nightly
-
     steps:
       - name: Checkout source code
         uses: actions/checkout@v2
-
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
         with:
-          profile: minimal
           toolchain: ${{ matrix.rust }}
+          profile: minimal
           override: true
+      - uses: Swatinem/rust-cache@v1
       - name: Build
         uses: actions-rs/cargo@v1
         with:
