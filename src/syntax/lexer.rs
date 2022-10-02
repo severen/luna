@@ -76,12 +76,9 @@ pub enum TokenKind {
   #[regex(r"true|false")]
   Bool,
 
-  /// A whitespace character, where 'whitespace' is any character having the
-  /// `Pattern_White_Space` Unicode property.
-  #[regex(r"\p{Pattern_White_Space}+|;[^\r\n]*(\r\n|\n)?", logos::skip)]
-  Whitespace,
-
   /// A 'token' used for indicating errors encountered during lexical analysis.
+  #[regex(r"\p{Pattern_White_Space}+", logos::skip)] // Throw away whitespace...
+  #[regex(r"|;[^\r\n]*(\r\n|\n)?", logos::skip)] // ...and line comments.
   #[error]
   Invalid,
 }

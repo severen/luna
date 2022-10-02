@@ -62,9 +62,6 @@ pub fn parse(input: &str) -> Result<Vec<SExpr>> {
       RParen | RBracket | RBrace => {
         error!(Span { start: token.span.start, end: token.span.end }, UnexpectedBracket)
       },
-      // NOTE: This is unreachable because the lexer should never _actually_ emit this
-      //       variant.
-      Whitespace => unreachable!(),
       Invalid => {
         error!(Span { start: token.span.start, end: token.span.end }, InvalidToken)
       },
@@ -127,9 +124,6 @@ fn parse_list(lexer: &mut Peekable<Lexer>) -> Result<SExpr> {
         }
         break;
       },
-      // NOTE: This is unreachable because the lexer should never _actually_ emit this
-      //       variant.
-      Whitespace => unreachable!(),
       Invalid => {
         error!(Span { start: token.span.start, end: token.span.end }, InvalidToken)
       },
