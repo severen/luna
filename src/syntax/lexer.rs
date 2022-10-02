@@ -73,7 +73,7 @@ pub enum TokenKind {
   #[regex(r"(\+|-)?[0-9]+", priority = 2)]
   Int,
   /// A boolean literal.
-  #[regex(r"true|false")]
+  #[regex(r"#t|#f|#true|#false")]
   Bool,
 
   /// A 'token' used for indicating errors encountered during lexical analysis.
@@ -196,8 +196,10 @@ mod tests {
 
   #[test]
   fn lex_bool() {
-    check("true", Bool);
-    check("false", Bool);
+    check("#t", Bool);
+    check("#f", Bool);
+    check("#true", Bool);
+    check("#false", Bool);
   }
 
   #[test]
