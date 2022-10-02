@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Luna.  If not, see <https://www.gnu.org/licenses/>.
 
-//! Types and functions for parsing Luna source code.
+//! Parser for Luna source code.
 
 use std::iter::Peekable;
 
@@ -24,14 +24,16 @@ use crate::syntax::{
 };
 
 /// A symbolic expression.
-#[derive(Debug)]
+#[derive(Eq, PartialEq, Debug)]
 pub enum SExpr {
+  /// An atomic value.
   Atom(Atom),
+  /// A list of atomic values.
   List(List),
 }
 
-/// An atom in a symbolic expression.
-#[derive(Debug, Eq, PartialEq)]
+/// An atomic value in a symbolic expression.
+#[derive(Eq, PartialEq, Debug)]
 pub enum Atom {
   Int(i32),
   Bool(bool),
@@ -42,16 +44,18 @@ pub enum Atom {
 /// A list in a symbolic expression.
 type List = Vec<SExpr>;
 
+/// A specialiation of [`Result`](std::result::Result) for brevity when writing return
+/// types for parser functions.
 type Result<T> = std::result::Result<T, syntax::Error>;
 
-/// Produce a syntax error and return from the surrounding function.
+/// Produce a [`struct@syntax::Error`] and return from the surrounding function.
 macro_rules! error {
   ($span: expr, $kind: ident $(,)?) => {
     return Err(syntax::Error { span: $span, kind: syntax::ErrorKind::$kind })
   };
 }
 
-/// Parse the given source code into an abstract syntax tree.
+/// Parse source code into an abstract syntax tree.
 pub fn parse(input: &str) -> Result<Vec<SExpr>> {
   let mut lexer = Lexer::new(strip_shebang(input)).peekable();
 
@@ -153,7 +157,7 @@ fn parse_list(lexer: &mut Peekable<Lexer>) -> Result<List> {
 }
 
 // TODO: Move this into a module containing program file abstractions.
-/// Strip the shebang line from the given string if it is present.
+/// Strip the shebang line from a string if one is present.
 pub fn strip_shebang(input: &str) -> &str {
   if input.starts_with("#!") {
     // The byte index of the first character after the shebang line.

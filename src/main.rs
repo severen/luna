@@ -13,10 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Luna.  If not, see <https://www.gnu.org/licenses/>.
 
-//! Luna is an exercise in writing a Scheme-derived programming language for learning
-//! about programming language theory, design, and implementation.
-//!
-//! For more information, see the README file in the repository root.
+#![doc = include_str!("../README.md")]
 
 use std::fs;
 
@@ -30,7 +27,7 @@ mod syntax;
 use crate::syntax::parser::parse;
 
 /// Parsed command line arguments.
-#[derive(Debug, Parser)]
+#[derive(Parser, Debug)]
 #[command(author, version, about)]
 struct Args {
   #[arg(name = "FILE", help = "A path to a Scheme program to execute")]

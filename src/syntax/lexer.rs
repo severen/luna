@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Luna.  If not, see <https://www.gnu.org/licenses/>.
 
-//! Types and functions for performing lexical analysis of Luna source code.
+//! Lexical analyser for Luna source code.
 
 use derive_more::Display;
 use logos::Logos;
@@ -21,7 +21,7 @@ use logos::Logos;
 use crate::syntax::Span;
 
 /// A token produced by a [`Lexer`].
-#[derive(Debug, Display, Eq, PartialEq, Clone)]
+#[derive(Copy, Clone, Eq, PartialEq, Display, Debug)]
 #[display(fmt = "{}", kind)]
 pub struct Token<'a> {
   /// The lexical category of this token.
@@ -33,7 +33,7 @@ pub struct Token<'a> {
 }
 
 /// The lexical category of a [`Token`].
-#[derive(Logos, Debug, Display, Copy, Clone, PartialEq, Eq)]
+#[derive(Logos, Copy, Clone, Eq, PartialEq, Display, Debug)]
 pub enum TokenKind {
   /// A left bracket `(` character.
   #[display(fmt = "(")]
