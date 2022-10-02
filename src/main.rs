@@ -22,9 +22,8 @@ use clap::Parser;
 use directories_next::ProjectDirs;
 use rustyline::{error::ReadlineError, Editor};
 
-mod syntax;
-
-use crate::syntax::parser::parse;
+#[rustfmt::skip]
+use luna::syntax::parser::parse;
 
 /// Parsed command line arguments.
 #[derive(Parser, Debug)]

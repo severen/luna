@@ -10,6 +10,14 @@ repository = "https://github.com/severen/luna.git"
 
 edition = "2021"
 
+[lib]
+name = "luna"
+path = "src/lib.rs"
+
+[[bin]]
+name = "luna"
+path = "src/main.rs"
+
 [dependencies]
 anyhow = "1.0.65"
 thiserror = "1.0.37"
