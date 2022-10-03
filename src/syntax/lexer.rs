@@ -84,20 +84,27 @@ pub enum TokenKind {
 }
 
 impl TokenKind {
+  /// Get the opening token for this token if it has one.
+  pub fn opener(&self) -> TokenKind {
+    use TokenKind::*;
+
+    match self {
+      RParen => LParen,
+      RBracket => LBracket,
+      RBrace => LBrace,
+      _ => panic!("expected a closing delimiter token"),
+    }
+  }
+
   /// Get the closing token for this token if it has one.
   pub fn closer(&self) -> TokenKind {
     use TokenKind::*;
 
-    // TODO: Perhaps devise a cleaner way of handling this. This function is principally
-    //       required by `parse_list` in the parser module.
     match self {
       LParen => RParen,
       LBracket => RBracket,
       LBrace => RBrace,
-      RParen => LParen,
-      RBracket => LBracket,
-      RBrace => LBrace,
-      _ => panic!("Delimiter token expected"),
+      _ => panic!("expected an opening delimiter token"),
     }
   }
 }

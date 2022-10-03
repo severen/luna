@@ -28,7 +28,7 @@ pub enum SExpr {
   String(String),
   /// An integer atom.
   Int(i32),
-  // A Boolean atom.
+  /// A Boolean atom.
   Bool(bool),
   /// A list of symbolic expressions.
   List(Vec<SExpr>),
@@ -40,8 +40,17 @@ type Result<T> = std::result::Result<T, syntax::Error>;
 
 /// Produce a [`struct@syntax::Error`] and return from the surrounding function.
 macro_rules! error {
-  ($span: expr, $kind: ident $(,)?) => {
-    return Err(syntax::Error { span: $span, kind: syntax::ErrorKind::$kind })
+  ($start:expr, $end:expr, $kind:ident $(,)?) => {
+    return Err(syntax::Error {
+      span: Span { start: $start, end: $end },
+      kind: syntax::ErrorKind::$kind,
+    })
+  };
+  ($start:expr, $end:expr, $kind:ident, $($field:ident = $value:expr),* $(,)?) => {
+    return Err(syntax::Error {
+      span: Span { start: $start, end: $end },
+      kind: syntax::ErrorKind::$kind {$($field: $value,)*},
+    })
   };
 }
 
@@ -60,10 +69,10 @@ pub fn parse(input: &str) -> Result<Vec<SExpr>> {
       Bool => parse_bool(&mut lexer),
       LParen | LBracket | LBrace => parse_list(&mut lexer)?,
       RParen | RBracket | RBrace => {
-        error!(Span { start: token.span.start, end: token.span.end }, UnexpectedBracket)
+        error!(token.span.start, token.span.end, UnexpectedToken, found = token.kind)
       },
       Invalid => {
-        error!(Span { start: token.span.start, end: token.span.end }, InvalidToken)
+        error!(token.span.start, token.span.end, InvalidToken)
       },
     };
     program.push(sexpr);
@@ -119,20 +128,27 @@ fn parse_list(lexer: &mut Peekable<Lexer>) -> Result<SExpr> {
       Bool => parse_bool(lexer),
       LParen | LBracket | LBrace => parse_list(lexer)?,
       RParen | RBracket | RBrace => {
-        if token.kind != opener.kind.closer() {
-          error!(Span { start: list_start, end: list_end }, UnexpectedBracket);
+        let closer = opener.kind.closer();
+        if token.kind != closer {
+          error!(
+            list_start,
+            list_end,
+            UnexpectedBracket,
+            expected = closer,
+            found = token.kind,
+          )
         }
         break;
       },
       Invalid => {
-        error!(Span { start: token.span.start, end: token.span.end }, InvalidToken)
+        error!(token.span.start, token.span.end, InvalidToken)
       },
     })
   }
 
   // Consume the closing bracket.
   if lexer.next().is_none() {
-    error!(Span { start: list_start, end: list_end }, UnmatchedBracket);
+    error!(list_start, list_end, UnmatchedBracket, expected = opener.kind.closer());
   }
 
   Ok(SExpr::List(list))
