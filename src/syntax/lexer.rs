@@ -36,43 +36,47 @@ pub struct Token<'a> {
 #[derive(Logos, Copy, Clone, Eq, PartialEq, Display, Debug)]
 pub enum TokenKind {
   /// A left bracket `(` character.
-  #[display(fmt = "(")]
+  #[display(fmt = "`(`")]
   #[token("(")]
   LParen,
   /// A right bracket `)` character.
-  #[display(fmt = ")")]
+  #[display(fmt = "`)`")]
   #[token(")")]
   RParen,
   /// A left square bracket `[` character.
-  #[display(fmt = "[")]
+  #[display(fmt = "`[`")]
   #[token("[")]
   LBracket,
   /// A right square bracket `]` character.
-  #[display(fmt = "]")]
+  #[display(fmt = "`]`")]
   #[token("]")]
   RBracket,
   /// A left brace `{` character.
-  #[display(fmt = "{{")]
+  #[display(fmt = "`{{`")]
   #[token("{")]
   LBrace,
   /// A right brace `}` character.
-  #[display(fmt = "}}")]
+  #[display(fmt = "`}}`")]
   #[token("}")]
   RBrace,
 
   // The set of extended identifier characters conforms to the minimum set required by
   // the R7RS (Small) specification.
   /// A symbol (an interned kind of string).
+  #[display(fmt = "symbol")]
   #[regex(r"(\p{XID_Continue}|!|\$|%|\*|\+|-|\.|/|:|<|=|>|\?|@|\^|_|~)+")]
   Symbol,
   /// A string literal.
+  #[display(fmt = "string literal")]
   #[regex(r#""([^"\\]|\\.)*""#)]
   String,
   // NOTE: Int has a higher priority in order to avoid ambiguity with Symbol.
   /// An integer literal.
+  #[display(fmt = "integer literal")]
   #[regex(r"(\+|-)?[0-9]+", priority = 2)]
   Int,
-  /// A boolean literal.
+  /// A Boolean literal.
+  #[display(fmt = "Boolean literal")]
   #[regex(r"#t|#f|#true|#false")]
   Bool,
 

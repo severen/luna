@@ -56,16 +56,16 @@ pub struct Error {
 #[derive(Copy, Clone, Eq, PartialEq, Error, Debug)]
 pub enum ErrorKind {
   /// An invalid token was encountered.
-  #[error("Invalid token")]
+  #[error("encountered invalid token")]
   InvalidToken,
   /// An unexpected token was encountered.
-  #[error("unexpected `{}`", .found)]
+  #[error("unexpected {}", .found)]
   UnexpectedToken {
     /// The unexpected token that was encountered.
     found: TokenKind,
   },
   /// An unexpected kind of closing bracket was encountered.
-  #[error("expected `{}` to close preceding `{}`, found `{}` instead", .expected, .expected.opener(), .found)]
+  #[error("expected {} to close preceding {}, found {} instead", .expected, .expected.opener(), .found)]
   UnexpectedBracket {
     /// The kind of closing bracket that was expected.
     expected: TokenKind,
@@ -73,7 +73,7 @@ pub enum ErrorKind {
     found: TokenKind,
   },
   /// An opening bracket without its corresponding closing bracket was encountered.
-  #[error("expected `{}` to close preceding `{}`", .expected, .expected.opener())]
+  #[error("expected {} to close preceding {}", .expected, .expected.opener())]
   UnmatchedBracket {
     /// The kind of closing bracket that was expected.
     expected: TokenKind,
