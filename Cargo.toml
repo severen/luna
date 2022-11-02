@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2022 Severen Redwood <me@severen.dev>
+# SPDX-License-Identifier: CC0-1.0
+
 [package]
 name = "luna"
 version = "0.1.0"
@@ -18,10 +21,13 @@ path = "src/lib.rs"
 name = "luna"
 path = "src/main.rs"
 
+[profile.release]
+lto = true
+
 [dependencies]
-anyhow = "1.0.65"
+anyhow = "1.0.66"
 thiserror = "1.0.37"
-clap = { version = "4.0.8", features = ["derive", "unicode", "wrap_help"] }
+clap = { version = "4.0.18", features = ["derive", "unicode", "wrap_help"] }
 rustyline = "10.0.0"
 directories-next = "2.0.0"
 logos = "0.12.1"

@@ -1,3 +1,8 @@
+<!--
+  SPDX-FileCopyrightText: 2022 Severen Redwood <me@severen.dev>
+  SPDX-License-Identifier: CC-BY-SA-4.0
+-->
+
 # Luna
 
 Luna is a work-in-progress hobby implementation of an interpreter for the Scheme
