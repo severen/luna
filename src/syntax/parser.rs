@@ -144,7 +144,7 @@ fn parse_list(lexer: &mut Peekable<Lexer>) -> Result<SExpr> {
 
 // TODO: Move this into a module containing program file abstractions.
 /// Strip the shebang line from a string if one is present.
-pub fn strip_shebang(input: &str) -> &str {
+pub(crate) fn strip_shebang(input: &str) -> &str {
   if input.starts_with("#!") {
     // The byte index of the first character after the shebang line.
     let i = input.find('\n').map(|i| i + 1).unwrap_or_else(|| input.len());
