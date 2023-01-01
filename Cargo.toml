@@ -25,7 +25,7 @@ path = "src/main.rs"
 lto = true
 
 [dependencies]
-anyhow = "1.0.66"
+anyhow = "1.0.68"
 thiserror = "1.0.37"
 clap = { version = "4.0.29", features = ["derive", "unicode", "wrap_help"] }
 rustyline = "10.0.0"
