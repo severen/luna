@@ -4,7 +4,7 @@
 [package]
 name = "luna"
 version = "0.1.0"
-authors = ["Severen Redwood <severen@shrike.me>"]
+authors = ["Severen Redwood <me@severen.dev>"]
 description = "An interpreter for the Scheme programming language."
 license = "GPL-3.0"
 
