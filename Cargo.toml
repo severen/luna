@@ -28,7 +28,7 @@ lto = true
 anyhow = "1.0.68"
 thiserror = "1.0.38"
 clap = { version = "4.1.1", features = ["derive", "unicode", "wrap_help"] }
-rustyline = "10.0.0"
+rustyline = "10.1.1"
 directories-next = "2.0.0"
 logos = "0.12.1"
 
