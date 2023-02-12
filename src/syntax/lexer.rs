@@ -10,7 +10,7 @@ use crate::syntax::Span;
 
 /// A token produced by a [`Lexer`].
 #[derive(Copy, Clone, Eq, PartialEq, Display, Debug)]
-#[display(fmt = "{}", kind)]
+#[display(fmt = "{kind}")]
 pub struct Token<'a> {
   /// The lexical category of this token.
   pub kind: TokenKind,

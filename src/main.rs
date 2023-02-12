@@ -77,17 +77,17 @@ fn repl() -> Result<()> {
 
         // TODO: Properly display and format syntax trees.
         match parse(&line) {
-          Ok(sexpr) => println!("{:?}", sexpr),
+          Ok(sexpr) => println!("{sexpr:?}"),
           Err(error) => {
             // TODO: Implement a unified error type with improved formatting.
-            println!("Syntax error: {}", error);
+            println!("Syntax error: {error}");
             println!("context: {}", &line[error.span.start..error.span.end]);
           },
         }
       },
       Err(ReadlineError::Interrupted | ReadlineError::Eof) => break,
       Err(error) => {
-        println!("Error: {:?}", error);
+        println!("Error: {error:?}");
         break;
       },
     }
