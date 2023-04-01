@@ -27,7 +27,7 @@ lto = true
 [dependencies]
 anyhow = "1.0.69"
 thiserror = "1.0.38"
-clap = { version = "4.1.4", features = ["derive", "unicode", "wrap_help"] }
+clap = { version = "4.1.14", features = ["derive", "unicode", "wrap_help"] }
 rustyline = "10.1.1"
 directories-next = "2.0.0"
 logos = "0.12.1"
