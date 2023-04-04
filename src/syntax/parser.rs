@@ -22,7 +22,7 @@ pub enum SExpr {
   List(Vec<SExpr>),
 }
 
-/// A specialiation of [`Result`](std::result::Result) for brevity when writing return
+/// A specialisation of [`Result`](std::result::Result) for brevity when writing return
 /// types for parser functions.
 type Result<T> = std::result::Result<T, syntax::Error>;
 
