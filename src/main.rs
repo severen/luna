@@ -18,7 +18,7 @@ use std::fs;
 use anyhow::Result;
 use clap::Parser;
 use directories_next::ProjectDirs;
-use rustyline::{error::ReadlineError, Editor};
+use rustyline::{error::ReadlineError, DefaultEditor};
 
 #[rustfmt::skip]
 use luna::syntax::parse;
@@ -64,7 +64,7 @@ fn repl() -> Result<()> {
   }
   let history_path = dirs.data_dir().join("history.txt");
 
-  let mut rl = Editor::<()>::new()?;
+  let mut rl = DefaultEditor::new()?;
   if rl.load_history(&history_path).is_err() {
     println!("No previous history.");
   }
@@ -73,7 +73,7 @@ fn repl() -> Result<()> {
     let line = rl.readline("> ");
     match line {
       Ok(line) => {
-        rl.add_history_entry(&line);
+        rl.add_history_entry(&line)?;
 
         // TODO: Properly display and format syntax trees.
         match parse(&line) {
